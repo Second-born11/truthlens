@@ -17,7 +17,7 @@ app = Flask(__name__)
 app.secret_key = "truthlens-secret-key-change-in-production"
 
 # ─── CONFIG ───────────────────────────────────────────────
-NEWS_API_KEY = "your_newsapi_key_here"
+NEWS_API_KEY = "2a2923a28707438d8fa4e52df386d9fc"
 MODEL_PATH   = "model/fake_news_model.pkl"
 VECTOR_PATH  = "model/tfidf_vectorizer.pkl"
 DB_PATH      = "database/history.db"
