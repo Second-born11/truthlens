@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Live News{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/news.css') }}"/>
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div class="container">
+    <div class="section-tag">// Real-Time News Integration</div>
+    <h1 class="page-title">Live News Feed</h1>
+    <p class="page-subtitle">Headlines fetched from BBC News and Reuters via NewsAPI — automatically analyzed by the detection system. Click any card to analyze it yourself.</p>
+    <div class="news-header-meta">
+      <div class="news-status" id="newsStatus">
+        <span class="status-dot"></span>
+        <span id="statusText">Loading...</span>
+      </div>
+      <button class="btn-refresh" onclick="loadNews()">↻ Refresh Feed</button>
+    </div>
+  </div>
+</div>
+
+<div class="news-body">
+  <div class="container">
+
+    <!-- Filter bar -->
+    <div class="filter-bar">
+      <span class="filter-label">Filter:</span>
+      <button class="filter-btn active" data-filter="all"  onclick="setFilter(this,'all')">All Articles</button>
+      <button class="filter-btn"        data-filter="REAL" onclick="setFilter(this,'REAL')">✅ Real Only</button>
+      <button class="filter-btn"        data-filter="FAKE" onclick="setFilter(this,'FAKE')">❌ Fake Only</button>
+    </div>
+
+    <!-- Grid -->
+    <div class="news-grid" id="newsGrid">
+      <div class="news-skeleton"></div>
+      <div class="news-skeleton"></div>
+      <div class="news-skeleton"></div>
+      <div class="news-skeleton"></div>
+      <div class="news-skeleton"></div>
+      <div class="news-skeleton"></div>
+    </div>
+
+    <!-- CTA -->
+    <div class="news-cta fade-up">
+      <p>Want to analyze your own article?</p>
+      <a href="{{ url_for('analyze_page') }}" class="btn-primary">Go to Analyzer →</a>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/news.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}"/>
+{% endblock %}
+
+{% block content %}
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">AI-Powered Misinformation Detection</div>
+    <h1>Is this news<br/><em>real</em> or fake?</h1>
+    <p class="hero-sub">TruthLens uses machine learning and natural language processing to classify news articles instantly — with confidence scores, keyword signals, and live news integration.</p>
+    <div class="hero-ctas">
+      <a href="{{ url_for('analyze_page') }}" class="btn-primary">Try the Detector →</a>
+      <a href="{{ url_for('how_it_works') }}" class="btn-secondary">How It Works</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-num">44,956</div><div class="stat-label">Articles Trained</div></div>
+      <div class="stat"><div class="stat-num">96.8%</div><div class="stat-label">Accuracy</div></div>
+      <div class="stat"><div class="stat-num">&lt;1s</div><div class="stat-label">Prediction Time</div></div>
+      <div class="stat"><div class="stat-num">2</div><div class="stat-label">News Sources</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── ABOUT ── -->
+<section class="about-section">
+  <div class="container">
+    <div class="about-grid">
+      <div class="about-text fade-up">
+        <div class="section-tag">// About the Project</div>
+        <h2>Fighting misinformation<br/>with AI</h2>
+        <p>TruthLens is a web-based application that uses Artificial Intelligence and Machine Learning to detect whether a news article is real or fake. The system analyzes news content using Natural Language Processing (NLP) techniques and a trained machine learning model.</p>
+        <p>It also integrates real-world news data from trusted APIs to make the system practical and usable in everyday scenarios.</p>
+        <a href="{{ url_for('how_it_works') }}" class="btn-link">Learn how it works →</a>
+      </div>
+      <div class="about-cards fade-up">
+        <div class="about-card">
+          <div class="about-card-icon">🤖</div>
+          <div class="about-card-title">Machine Learning</div>
+          <div class="about-card-desc">Passive Aggressive Classifier trained on 44,956 articles</div>
+        </div>
+        <div class="about-card">
+          <div class="about-card-icon"></div>
+          <div class="about-card-title">NLP & TF-IDF</div>
+          <div class="about-card-desc">Text converted to 50,000-dimensional feature vectors</div>
+        </div>
+        <div class="about-card">
+          <div class="about-card-icon"></div>
+          <div class="about-card-title">Live News API</div>
+          <div class="about-card-desc">Real-time headlines from BBC News and Reuters</div>
+        </div>
+        <div class="about-card">
+          <div class="about-card-icon"></div>
+          <div class="about-card-title">Explainable AI</div>
+          <div class="about-card-desc">Keyword flags show what influenced the prediction</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FEATURES STRIP ── -->
+<section class="features-strip">
+  <div class="container">
+    <div class="section-tag">// Core Features</div>
+    <h2>Everything you need to verify news</h2>
+    <div class="strip-grid fade-up">
+      <div class="strip-item">
+        <span class="strip-icon">🧠</span>
+        <div class="strip-title">AI Classification</div>
+        <div class="strip-desc">Real or Fake prediction in under a second</div>
+      </div>
+      <div class="strip-item">
+        <span class="strip-icon"></span>
+        <div class="strip-title">Confidence Score</div>
+        <div class="strip-desc">Probability meter from 0–100%</div>
+      </div>
+      <div class="strip-item">
+        <span class="strip-icon">⚑</span>
+        <div class="strip-title">Keyword Flags</div>
+        <div class="strip-desc">Suspicious words highlighted for transparency</div>
+      </div>
+      <div class="strip-item">
+        <span class="strip-icon"></span>
+        <div class="strip-title">Live News Feed</div>
+        <div class="strip-desc">Auto-analyzed headlines from trusted sources</div>
+      </div>
+      <div class="strip-item">
+        <span class="strip-icon">🛠️</span>
+        <div class="strip-title">Admin Panel</div>
+        <div class="strip-desc">Secured dashboard with full analytics</div>
+      </div>
+      <div class="strip-item">
+        <span class="strip-icon">️</span>
+        <div class="strip-title">History Storage</div>
+        <div class="strip-desc">Every analysis saved to SQLite database</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ── -->
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-box fade-up">
+      <div class="cta-grid-bg"></div>
+      <h2>Ready to detect fake news?</h2>
+      <p>Paste any article and get an AI-powered verdict in under a second.</p>
+      <a href="{{ url_for('analyze_page') }}" class="btn-primary btn-large">Start Analyzing →</a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/home.js') }}"></script>
+{% endblock %}

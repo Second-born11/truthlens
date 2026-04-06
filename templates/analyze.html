@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}Analyze{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/analyze.css') }}"/>
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div class="container">
+    <div class="section-tag">// AI Detection Tool</div>
+    <h1 class="page-title">Fake News Analyzer</h1>
+    <p class="page-subtitle">Paste any news article below. The AI model will classify it using TF-IDF vectorization and a Passive Aggressive Classifier trained on 44,956 articles.</p>
+  </div>
+</div>
+
+<div class="analyze-body">
+  <div class="container">
+
+    <!-- Sample Loaders -->
+    <div class="sample-bar">
+      <span class="sample-label">Quick test:</span>
+      <button class="sample-btn" onclick="loadSample('real')"> Real Article Sample</button>
+      <button class="sample-btn" onclick="loadSample('fake')">⚠️ Fake Article Sample</button>
+      <button class="sample-btn" onclick="loadSample('mixed')"> Mixed Sample</button>
+    </div>
+
+    <div class="analyze-grid">
+
+      <!-- LEFT: Input -->
+      <div class="input-col">
+        <div class="input-card">
+          <div class="input-card-header">
+            <div class="input-card-title">News Article Input</div>
+            <div class="input-meta"><span id="wordCount">0</span> words · <span id="charCount">0</span> chars</div>
+          </div>
+          <textarea id="newsInput" placeholder="Paste your news article here...
+
+The system will analyze:
+• Word patterns and frequency
+• Writing style indicators  
+• Linguistic red flags
+• Content credibility signals"></textarea>
+          <div class="input-card-footer">
+            <button class="btn-analyze" id="analyzeBtn" onclick="analyzeNews()">
+              <span class="btn-analyze-icon"></span>
+              <span class="btn-analyze-text">Analyze News</span>
+            </button>
+            <button class="btn-clear" onclick="clearAll()">Clear</button>
+            <span class="shortcut-hint">Ctrl+Enter to analyze</span>
+          </div>
+        </div>
+        <div class="model-badge">
+          <div class="mb-item"><span class="mb-label">Model</span><span class="mb-val">Passive Aggressive Classifier</span></div>
+          <div class="mb-item"><span class="mb-label">Vectorizer</span><span class="mb-val">TF-IDF (50k features)</span></div>
+          <div class="mb-item"><span class="mb-label">Training set</span><span class="mb-val">44,956 articles</span></div>
+          <div class="mb-item"><span class="mb-label">Accuracy</span><span class="mb-val green">96.8%</span></div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Result -->
+      <div class="result-col">
+        <div class="result-card" id="resultCard">
+
+          <!-- Idle -->
+          <div class="state-idle" id="stateIdle">
+            <div class="idle-icon">🧠</div>
+            <div class="idle-title">Awaiting input</div>
+            <div class="idle-sub">Enter a news article and click Analyze News</div>
+          </div>
+
+          <!-- Processing -->
+          <div class="state-processing" id="stateProcessing">
+            <div class="proc-spinner"></div>
+            <div class="proc-title">Analyzing article...</div>
+            <div class="proc-steps">
+              <div class="pstep" id="ps1">⚙️ Preprocessing text</div>
+              <div class="pstep" id="ps2"> TF-IDF vectorizing</div>
+              <div class="pstep" id="ps3">🤖 Running classifier</div>
+              <div class="pstep" id="ps4"> Calculating confidence</div>
+            </div>
+          </div>
+
+          <!-- Result -->
+          <div class="state-result" id="stateResult">
+            <div class="verdict-banner" id="verdictBanner">
+              <div class="verdict-icon" id="verdictIcon">✓</div>
+              <div class="verdict-info">
+                <div class="verdict-label">Prediction Result</div>
+                <div class="verdict-word" id="verdictWord">REAL</div>
+              </div>
+              <div class="verdict-conf-big" id="verdictConfBig">—</div>
+            </div>
+
+            <div class="result-meter-section">
+              <div class="result-meter-header">
+                <span>Confidence Score</span>
+                <span id="meterPct">0%</span>
+              </div>
+              <div class="meter-track">
+                <div class="meter-fill" id="meterFill"></div>
+              </div>
+              <div class="meter-labels"><span>0%</span><span>50%</span><span>100%</span></div>
+            </div>
+
+            <div class="result-keywords">
+              <div class="result-section-title">⚑ Flagged Keywords</div>
+              <div id="kwTags" class="kw-tags"></div>
+            </div>
+
+            <div class="result-meta" id="resultMeta"></div>
+
+            <div class="result-actions">
+              <button class="btn-again" onclick="clearAll()">← Analyze Another Article</button>
+              <a href="{{ url_for('news_page') }}" class="btn-news-link">View Live News Feed →</a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/analyze.js') }}"></script>
+{% endblock %}

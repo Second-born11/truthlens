@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}"/>
+{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-page">
+  <div class="container">
+
+    <!-- Header -->
+    <div class="dash-header">
+      <div>
+        <div class="section-tag">// Admin Panel</div>
+        <h1 class="page-title">System Dashboard</h1>
+        <p class="dash-welcome">Welcome back, <strong>{{ session.get('admin_user', 'Admin') }}</strong> — here's your system overview.</p>
+      </div>
+      <div class="dash-header-actions">
+        <button class="dash-btn-secondary" onclick="refreshStats()">↻ Refresh</button>
+        <button class="dash-btn-danger"    onclick="confirmClear()"> Clear History</button>
+        <a href="{{ url_for('admin_logout') }}" class="dash-btn-logout">Logout →</a>
+      </div>
+    </div>
+
+    <!-- Stat Cards -->
+    <div class="stat-cards">
+      <div class="stat-card">
+        <div class="stat-card-icon blue"></div>
+        <div class="stat-card-body">
+          <div class="stat-card-label">Total Analyses</div>
+          <div class="stat-card-val blue">{{ stats.total }}</div>
+          <div class="stat-card-sub">All time</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-icon green">✅</div>
+        <div class="stat-card-body">
+          <div class="stat-card-label">Classified Real</div>
+          <div class="stat-card-val green">{{ stats.real }}</div>
+          <div class="stat-card-sub">Authentic articles</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-icon red">❌</div>
+        <div class="stat-card-body">
+          <div class="stat-card-label">Classified Fake</div>
+          <div class="stat-card-val red">{{ stats.fake }}</div>
+          <div class="stat-card-sub">Misinformation detected</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-icon yellow"></div>
+        <div class="stat-card-body">
+          <div class="stat-card-label">Avg Confidence</div>
+          <div class="stat-card-val yellow">{{ stats.avg_confidence }}%</div>
+          <div class="stat-card-sub">Average score</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-icon" style="background:rgba(255,255,255,0.05)">🤖</div>
+        <div class="stat-card-body">
+          <div class="stat-card-label">Model Accuracy</div>
+          <div class="stat-card-val" style="color:var(--text)">96.8%</div>
+          <div class="stat-card-sub">Test set validation</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-icon" style="background:rgba(255,255,255,0.05)">️</div>
+        <div class="stat-card-body">
+          <div class="stat-card-label">Training Articles</div>
+          <div class="stat-card-val" style="color:var(--text)">44,956</div>
+          <div class="stat-card-sub">Real + Fake dataset</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts + Table Row -->
+    <div class="dash-main-grid">
+
+      <!-- Bar chart -->
+      <div class="dash-card">
+        <div class="dash-card-title">Recent Analysis History</div>
+        <div class="dash-chart" id="dashChart">
+          {% if stats.recent %}
+            {% for item in stats.recent | reverse %}
+            <div class="dcbar-wrap">
+              <div class="dcbar {% if item.prediction == 'FAKE' %}dcbar-fake{% else %}dcbar-real{% endif %}"
+                   style="height: {{ [6, (item.confidence * 0.65)|int]|max }}px;"
+                   title="{{ item.prediction }} — {{ item.confidence }}%"></div>
+              <div class="dcbar-lbl">{{ 'F' if item.prediction == 'FAKE' else 'R' }}</div>
+            </div>
+            {% endfor %}
+          {% else %}
+            <div class="dash-chart-empty">No analyses yet.</div>
+          {% endif %} 
+        </div>
+        <div class="dash-chart-legend">
+          <div><span class="legend-dot real"></span> Real</div>
+          <div><span class="legend-dot fake"></span> Fake</div>
+        </div>
+      </div>
+
+      <!-- Ratio Donut (CSS only) -->
+      <div class="dash-card">
+        <div class="dash-card-title">Real vs Fake Ratio</div>
+        {% if stats.total > 0 %}
+          {% set real_pct = ((stats.real / stats.total) * 100) | round(1) %}
+          {% set fake_pct = ((stats.fake / stats.total) * 100) | round(1) %}
+        {% else %}
+          {% set real_pct = 50 %}
+          {% set fake_pct = 50 %}
+        {% endif %}
+        <div class="ratio-wrap">
+          <div class="ratio-donut"
+               style="background: conic-gradient(var(--accent-green) 0% {{ real_pct }}%, var(--accent-red) {{ real_pct }}% 100%);">
+            <div class="ratio-hole">
+              <div class="ratio-num">{{ stats.total }}</div>
+              <div class="ratio-sub">total</div>
+            </div>
+          </div>
+          <div class="ratio-legend">
+            <div class="ratio-item"><span class="legend-dot real"></span> Real — {{ real_pct }}% ({{ stats.real }})</div>
+            <div class="ratio-item"><span class="legend-dot fake"></span> Fake — {{ fake_pct }}% ({{ stats.fake }})</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Recent History Table -->
+    <div class="dash-card full-width">
+      <div class="dash-card-title">Recent Analyses (Last 10)</div>
+      {% if stats.recent %}
+      <div class="table-wrap">
+        <table class="dash-table">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Article Preview</th>
+              <th>Prediction</th>
+              <th>Confidence</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in stats.recent %}
+            <tr>
+              <td class="td-time">{{ item.timestamp[:19].replace('T',' ') }}</td>
+              <td class="td-article">{{ item.article[:80] }}...</td>
+              <td>
+                <span class="pred-badge {{ item.prediction }}">{{ item.prediction }}</span>
+              </td>
+              <td class="td-conf">
+                <div class="mini-bar-wrap">
+                  <div class="mini-bar {% if item.prediction == 'FAKE' %}mini-fake{% else %}mini-real{% endif %}"
+                       style="width:{{ item.confidence }}%"></div>
+                </div>
+                {{ item.confidence }}%
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="table-empty">No analysis history yet. Run the detector to start generating data.</div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+
+<!-- Clear Confirm Modal -->
+<div class="modal-overlay" id="clearModal">
+  <div class="modal-box">
+    <div class="modal-icon">️</div>
+    <div class="modal-title">Clear All History?</div>
+    <div class="modal-sub">This will permanently delete all analysis records from the database. This cannot be undone.</div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+      <button class="modal-confirm" onclick="clearHistory()">Yes, Clear All</button>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% endblock %}

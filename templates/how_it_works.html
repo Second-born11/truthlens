@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+{% block title %}How It Works{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/how.css') }}"/>
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div class="container">
+    <div class="section-tag">// System Overview</div>
+    <h1 class="page-title">How TruthLens Works</h1>
+    <p class="page-subtitle">A complete breakdown of the AI pipeline, tools, and technology powering the detection system.</p>
+  </div>
+</div>
+
+<div class="how-body">
+  <div class="container">
+
+    <!-- ── WORKFLOW ── -->
+    <div class="how-section fade-up">
+      <div class="how-section-tag">01 — Pipeline</div>
+      <h2>System Workflow</h2>
+      <p class="how-desc">Six stages from raw text to a verified prediction.</p>
+
+      <div class="workflow-vertical">
+        <div class="wv-step">
+          <div class="wv-left">
+            <div class="wv-num">01</div>
+            <div class="wv-line"></div>
+          </div>
+          <div class="wv-right">
+            <div class="wv-icon"></div>
+            <div class="wv-title">User Input</div>
+            <div class="wv-desc">The user pastes a news article into the web interface, or the system fetches a live headline from NewsAPI (BBC News / Reuters).</div>
+          </div>
+        </div>
+        <div class="wv-step">
+          <div class="wv-left">
+            <div class="wv-num">02</div>
+            <div class="wv-line"></div>
+          </div>
+          <div class="wv-right">
+            <div class="wv-icon">⚙️</div>
+            <div class="wv-title">Text Preprocessing</div>
+            <div class="wv-desc">The text is cleaned: converted to lowercase, URLs are removed, special characters and punctuation are stripped, and extra whitespace is normalized.</div>
+          </div>
+        </div>
+        <div class="wv-step">
+          <div class="wv-left">
+            <div class="wv-num">03</div>
+            <div class="wv-line"></div>
+          </div>
+          <div class="wv-right">
+            <div class="wv-icon"></div>
+            <div class="wv-title">TF-IDF Vectorization</div>
+            <div class="wv-desc">The cleaned text is transformed into a numerical feature vector using Term Frequency–Inverse Document Frequency (TF-IDF) with 50,000 features and bigrams.</div>
+            <div class="wv-code">vectorizer.transform([cleaned_text])  → sparse matrix (1 × 50,000)</div>
+          </div>
+        </div>
+        <div class="wv-step">
+          <div class="wv-left">
+            <div class="wv-num">04</div>
+            <div class="wv-line"></div>
+          </div>
+          <div class="wv-right">
+            <div class="wv-icon">🤖</div>
+            <div class="wv-title">ML Classification</div>
+            <div class="wv-desc">The Passive Aggressive Classifier receives the feature vector and predicts a class: <strong>REAL</strong> or <strong>FAKE</strong>. It also returns a decision function score used to compute confidence.</div>
+            <div class="wv-code">model.predict(features)  → "REAL" | "FAKE"</div>
+          </div>
+        </div>
+        <div class="wv-step">
+          <div class="wv-left">
+            <div class="wv-num">05</div>
+            <div class="wv-line"></div>
+          </div>
+          <div class="wv-right">
+            <div class="wv-icon"></div>
+            <div class="wv-title">Confidence Calculation</div>
+            <div class="wv-desc">The raw decision score is normalized to a 0–100% confidence value using a sigmoid-style transformation, giving users a human-readable probability.</div>
+          </div>
+        </div>
+        <div class="wv-step last">
+          <div class="wv-left">
+            <div class="wv-num">06</div>
+          </div>
+          <div class="wv-right">
+            <div class="wv-icon">✅</div>
+            <div class="wv-title">Result Display</div>
+            <div class="wv-desc">The prediction, confidence score, flagged keywords, and word count are returned and displayed to the user. The result is also saved to the SQLite database.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ML MODEL ── -->
+    <div class="how-section fade-up">
+      <div class="how-section-tag">02 — Machine Learning</div>
+      <h2>The ML Model</h2>
+      <div class="model-grid">
+        <div class="model-info-card">
+          <div class="mic-title">Passive Aggressive Classifier</div>
+          <p>The PAC is an online learning algorithm well-suited for large-scale text classification. It stays "passive" when a prediction is correct, but makes aggressive updates when it makes a mistake — making it fast and highly accurate for news classification.</p>
+          <div class="mic-specs">
+            <div class="mic-spec"><span>Algorithm</span><span>Passive Aggressive Classifier</span></div>
+            <div class="mic-spec"><span>Regularization</span><span>C = 0.5</span></div>
+            <div class="mic-spec"><span>Max iterations</span><span>50</span></div>
+            <div class="mic-spec"><span>Test accuracy</span><span class="green">~96–99%</span></div>
+          </div>
+        </div>
+        <div class="model-info-card">
+          <div class="mic-title">TF-IDF Vectorizer</div>
+          <p>TF-IDF (Term Frequency–Inverse Document Frequency) converts text to numerical vectors. Words that appear frequently in a document but rarely across all documents are weighted higher — identifying the most meaningful terms.</p>
+          <div class="mic-specs">
+            <div class="mic-spec"><span>Max features</span><span>50,000</span></div>
+            <div class="mic-spec"><span>N-gram range</span><span>(1, 2) — unigrams + bigrams</span></div>
+            <div class="mic-spec"><span>Max document freq</span><span>70%</span></div>
+            <div class="mic-spec"><span>Sublinear TF</span><span>Enabled (log normalization)</span></div>
+          </div>
+        </div>
+        <div class="model-info-card">
+          <div class="mic-title">Training Dataset</div>
+          <p>The model was trained on a public dataset of real and fake news articles sourced from Kaggle. The dataset contains articles from various topics including politics, world events, and social issues.</p>
+          <div class="mic-specs">
+            <div class="mic-spec"><span>Total articles</span><span>~44,956</span></div>
+            <div class="mic-spec"><span>Fake articles</span><span>~23,481</span></div>
+            <div class="mic-spec"><span>Real articles</span><span>~21,417</span></div>
+            <div class="mic-spec"><span>Train/Test split</span><span>80% / 20%</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TECH STACK ── -->
+    <div class="how-section fade-up">
+      <div class="how-section-tag">03 — Technologies</div>
+      <h2>Tools & Stack</h2>
+      <div class="tech-grid">
+        <div class="tech-col">
+          <div class="tech-col-title"> Languages</div>
+          <div class="tech-item"><div class="td"></div><div><strong>Python</strong><span>Backend logic, AI model, data handling</span></div></div>
+          <div class="tech-item"><div class="td"></div><div><strong>HTML5</strong><span>Page structure and semantics</span></div></div>
+          <div class="tech-item"><div class="td"></div><div><strong>CSS3</strong><span>Styling, layout, animations</span></div></div>
+          <div class="tech-item"><div class="td"></div><div><strong>JavaScript</strong><span>Interactivity, API calls, DOM updates</span></div></div>
+        </div>
+        <div class="tech-col">
+          <div class="tech-col-title">⚙️ Frameworks & Libraries</div>
+          <div class="tech-item"><div class="td"></div><div><strong>Flask</strong><span>Web server and routing</span></div></div>
+          <div class="tech-item"><div class="td"></div><div><strong>Scikit-learn</strong><span>ML model training and prediction</span></div></div>
+          <div class="tech-item"><div class="td"></div><div><strong>Pandas</strong><span>Dataset loading and manipulation</span></div></div>
+          <div class="tech-item"><div class="td"></div><div><strong>NumPy</strong><span>Numerical computations</span></div></div>
+        </div>
+        <div class="tech-col">
+          <div class="tech-col-title"> APIs & Storage</div>
+          <div class="tech-item"><div class="td"></div><div><strong>NewsAPI</strong><span>Real-time headlines from BBC, Reuters</span></div></div>
+          <div class="tech-item"><div class="td"></div><div><strong>SQLite</strong><span>Analysis history database</span></div></div>
+          <div class="tech-item"><div class="td"></div><div><strong>Pickle</strong><span>Saving and loading trained model</span></div></div>
+          <div class="tech-item"><div class="td"></div><div><strong>Flask Sessions</strong><span>Admin authentication</span></div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/how.js') }}"></script>
+{% endblock %}
