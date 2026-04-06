@@ -1,8 +1,3 @@
-"""
-TruthLens — AI Fake News Detection System
-Multi-page Flask Application with Admin Authentication
-"""
-
 from flask import (
     Flask, request, jsonify, render_template,
     redirect, url_for, session, flash
@@ -23,7 +18,7 @@ VECTOR_PATH  = "model/tfidf_vectorizer.pkl"
 DB_PATH      = "database/history.db"
 
 # Admin credentials
-ADMIN_USERNAME = os.getenv("ADMIN_USER")
+ADMIN_USERNAME = os.getenv("ADMIN_USERNAME")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
 
 # ─── LOAD MODEL ───────────────────────────────────────────

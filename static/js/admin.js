@@ -1,5 +1,3 @@
-/* admin.js */
-
 async function refreshStats() {
   try {
     await fetch('/api/stats');

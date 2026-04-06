@@ -1,13 +1,3 @@
-"""
-TruthLens - Model Training Script
-Run this ONCE to train and save the ML model.
-
-Dataset: Download from Kaggle —
-  https://www.kaggle.com/datasets/clmentbisaillon/fake-and-real-news-dataset
-  You need two files: Fake.csv and True.csv
-  Place them in the 'dataset/' folder.
-"""
-
 import pandas as pd
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
