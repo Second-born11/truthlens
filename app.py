@@ -8,6 +8,8 @@ from flask import (
     redirect, url_for, session, flash
 )
 import pickle, os, re, requests, sqlite3, numpy as np
+from dotenv import load_dotenv
+load_dotenv() #this opens the .env safe
 from datetime import datetime
 from functools import wraps
 
@@ -21,8 +23,8 @@ VECTOR_PATH  = "model/tfidf_vectorizer.pkl"
 DB_PATH      = "database/history.db"
 
 # Admin credentials
-ADMIN_USERNAME = "Chinonye"
-ADMIN_PASSWORD = "Nonye@11"
+ADMIN_USERNAME = os.getenv("ADMIN_USER")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
 
 # ─── LOAD MODEL ───────────────────────────────────────────
 model = None
