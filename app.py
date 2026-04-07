@@ -192,8 +192,9 @@ def predict():
     cleaned   = preprocess(text)
     features  = vectorizer.transform([cleaned])
     prediction = model.predict(features)[0]
-    score      = model.decision_function(features)[0]
-    confidence = round(min(99.9, float(np.abs(score) / (np.abs(score) + 1) * 100 + 50)), 1)
+    score      = float(model.decision_function(features)[0])
+    #Sigmoid normalization: gives clean 50-99% range based on how certain the model is
+    confidence = round(min(99.5, max(50.5, 100 / (1+ np.exp(-abs(score))))), 1)
     keywords   = extract_keywords(text)
 
     save_to_db(text, prediction, confidence)
@@ -209,7 +210,7 @@ def predict():
 
 @app.route("/api/news")
 def api_news():
-    if NEWS_API_KEY == "your_newsapi_key_here":
+    if NEWS_API_KEY == "2a2923a28707438d8fa4e52df386d9fc":
         return jsonify({"articles": demo_news(), "source": "demo"})
     try:
         url = (f"https://newsapi.org/v2/top-headlines?sources=bbc-news,reuters"
