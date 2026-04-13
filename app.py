@@ -10,10 +10,10 @@ from functools import wraps
 import math
 
 app = Flask(__name__)
-app.secret_key = "221feb178a44cdabd164fb297e11845627f036a11fbcedceedbc8909049055d2"
+app.secret_key = os.getenv("FLASK_SECRET_KEY")
 
 # ─── CONFIG ───────────────────────────────────────────────
-NEWS_API_KEY = "2a2923a28707438d8fa4e52df386d9fc"
+NEWS_API_KEY = os.getenv("NEWS_API_KEY")
 MODEL_PATH   = "model/fake_news_model.pkl"
 VECTOR_PATH  = "model/tfidf_vectorizer.pkl"
 DB_PATH      = "database/history.db"
@@ -375,7 +375,7 @@ def upload_file():
 
 @app.route("/api/news")
 def api_news():
-    if NEWS_API_KEY == "2a2923a28707438d8fa4e52df386d9fc":
+    if not NEWS_API_KEY:
         return jsonify({"articles": demo_news(), "source": "demo"})
     try:
         url      = (f"https://newsapi.org/v2/top-headlines?sources=bbc-news,reuters"
