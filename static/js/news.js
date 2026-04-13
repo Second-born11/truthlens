@@ -27,7 +27,7 @@ async function loadNews() {
     document.getElementById('statusText').textContent =
       data.source === 'live'
         ? '🟢 Live data · Updated just now'
-        : '🟡 Demo data · Add your NewsAPI key in app.py for live news';
+        : '🟡 Demo data · Add your NewsAPI key in app.py for  Live news';
 
     renderCards();
 

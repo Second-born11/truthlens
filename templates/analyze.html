@@ -1,3 +1,4 @@
+analyze.html
 {% extends "base.html" %}
 {% block title %}Analyze{% endblock %}
 
@@ -11,46 +12,165 @@
   <div class="container">
     <div class="section-tag">// AI Detection Tool</div>
     <h1 class="page-title">Fake News Analyzer</h1>
-    <p class="page-subtitle">Paste any news article below. The AI model will classify it using TF-IDF vectorization and a Passive Aggressive Classifier trained on 44,956 articles.</p>
+    <p class="page-subtitle">Analyze news from text, audio, video, documents, or images. The AI model classifies it as REAL or FAKE with a confidence score.</p>
   </div>
 </div>
 
 <div class="analyze-body">
   <div class="container">
 
-    <!-- Sample Loaders -->
-    <div class="sample-bar">
-      <span class="sample-label">Quick test:</span>
-      <button class="sample-btn" onclick="loadSample('real')"> Real Article Sample</button>
-      <button class="sample-btn" onclick="loadSample('fake')">⚠️ Fake Article Sample</button>
-      <button class="sample-btn" onclick="loadSample('mixed')"> Mixed Sample</button>
+    <!-- ── INPUT MODE TABS ── -->
+    <div class="mode-tabs">
+      <button class="mode-tab active" data-mode="text"     onclick="switchMode('text')"> Text</button>
+      <button class="mode-tab"        data-mode="audio"    onclick="switchMode('audio')"> Audio (MP3/WAV)</button>
+      <button class="mode-tab"        data-mode="video"    onclick="switchMode('video')"> Video (MP4)</button>
+      <button class="mode-tab"        data-mode="document" onclick="switchMode('document')"> Document (PDF/DOCX)</button>
+      <button class="mode-tab"        data-mode="image"    onclick="switchMode('image')">️ Image</button>
     </div>
 
     <div class="analyze-grid">
 
-      <!-- LEFT: Input -->
+      <!-- ══ LEFT: INPUT PANEL ══ -->
       <div class="input-col">
-        <div class="input-card">
+
+        <!-- TEXT MODE -->
+        <div class="input-card" id="modeText">
           <div class="input-card-header">
-            <div class="input-card-title">News Article Input</div>
+            <div class="input-card-title"> News Article Text</div>
             <div class="input-meta"><span id="wordCount">0</span> words · <span id="charCount">0</span> chars</div>
+          </div>
+          <div class="sample-bar">
+            <span class="sample-label">Quick test:</span>
+            <button class="sample-btn" onclick="loadSample('real')"> Real Sample</button>
+            <button class="sample-btn" onclick="loadSample('fake')">⚠️ Fake Sample</button>
+            <button class="sample-btn" onclick="loadSample('mixed')"> Mixed Sample</button>
           </div>
           <textarea id="newsInput" placeholder="Paste your news article here...
 
 The system will analyze:
 • Word patterns and frequency
-• Writing style indicators  
+• Writing style indicators
 • Linguistic red flags
 • Content credibility signals"></textarea>
           <div class="input-card-footer">
             <button class="btn-analyze" id="analyzeBtn" onclick="analyzeNews()">
               <span class="btn-analyze-icon"></span>
-              <span class="btn-analyze-text">Analyze News</span>
+              <span class="btn-analyze-text">Analyze Text</span>
             </button>
             <button class="btn-clear" onclick="clearAll()">Clear</button>
-            <span class="shortcut-hint">Ctrl+Enter to analyze</span>
+            <span class="shortcut-hint">Ctrl+Enter</span>
           </div>
         </div>
+
+        <!-- AUDIO MODE -->
+        <div class="input-card upload-card" id="modeAudio" style="display:none;">
+          <div class="input-card-header">
+            <div class="input-card-title"> Audio File</div>
+            <div class="input-meta">MP3, WAV, M4A · Max 50MB</div>
+          </div>
+          <div class="drop-zone" id="dropAudio" onclick="document.getElementById('fileAudio').click()">
+            <div class="drop-icon"></div>
+            <div class="drop-title">Drop audio file here or click to browse</div>
+            <div class="drop-sub">Supports MP3, WAV, M4A</div>
+            <div class="drop-sub">Audio will be transcribed using Google Speech API then analyzed</div>
+            <input type="file" id="fileAudio" accept=".mp3,.wav,.m4a" style="display:none" onchange="handleFileSelect(this,'audio')"/>
+          </div>
+          <div class="file-selected" id="fileSelectedAudio" style="display:none;">
+            <span class="file-icon"></span>
+            <span class="file-name" id="fileNameAudio"></span>
+            <button class="file-remove" onclick="removeFile('audio')">✕</button>
+          </div>
+          <div class="input-card-footer">
+            <button class="btn-analyze" id="analyzeBtnAudio" onclick="analyzeFile('audio')" disabled>
+              <span class="btn-analyze-icon"></span>
+              <span class="btn-analyze-text">Transcribe & Analyze</span>
+            </button>
+            <button class="btn-clear" onclick="removeFile('audio')">Clear</button>
+          </div>
+        </div>
+
+        <!-- VIDEO MODE -->
+        <div class="input-card upload-card" id="modeVideo" style="display:none;">
+          <div class="input-card-header">
+            <div class="input-card-title"> Video File</div>
+            <div class="input-meta">MP4 · Max 50MB</div>
+          </div>
+          <div class="drop-zone" id="dropVideo" onclick="document.getElementById('fileVideo').click()">
+            <div class="drop-icon"></div>
+            <div class="drop-title">Drop video file here or click to browse</div>
+            <div class="drop-sub">Supports MP4</div>
+            <div class="drop-sub">Audio will be extracted → transcribed → analyzed</div>
+            <input type="file" id="fileVideo" accept=".mp4" style="display:none" onchange="handleFileSelect(this,'video')"/>
+          </div>
+          <div class="file-selected" id="fileSelectedVideo" style="display:none;">
+            <span class="file-icon"></span>
+            <span class="file-name" id="fileNameVideo"></span>
+            <button class="file-remove" onclick="removeFile('video')">✕</button>
+          </div>
+          <div class="input-card-footer">
+            <button class="btn-analyze" id="analyzeBtnVideo" onclick="analyzeFile('video')" disabled>
+              <span class="btn-analyze-icon"></span>
+              <span class="btn-analyze-text">Extract & Analyze</span>
+            </button>
+            <button class="btn-clear" onclick="removeFile('video')">Clear</button>
+          </div>
+        </div>
+
+        <!-- DOCUMENT MODE -->
+        <div class="input-card upload-card" id="modeDocument" style="display:none;">
+          <div class="input-card-header">
+            <div class="input-card-title"> Document File</div>
+            <div class="input-meta">PDF, DOCX, DOC · Max 50MB</div>
+          </div>
+          <div class="drop-zone" id="dropDocument" onclick="document.getElementById('fileDocument').click()">
+            <div class="drop-icon"></div>
+            <div class="drop-title">Drop document here or click to browse</div>
+            <div class="drop-sub">Supports PDF, DOCX, DOC</div>
+            <div class="drop-sub">Text will be extracted and analyzed automatically</div>
+            <input type="file" id="fileDocument" accept=".pdf,.docx,.doc" style="display:none" onchange="handleFileSelect(this,'document')"/>
+          </div>
+          <div class="file-selected" id="fileSelectedDocument" style="display:none;">
+            <span class="file-icon"></span>
+            <span class="file-name" id="fileNameDocument"></span>
+            <button class="file-remove" onclick="removeFile('document')">✕</button>
+          </div>
+          <div class="input-card-footer">
+            <button class="btn-analyze" id="analyzeBtnDocument" onclick="analyzeFile('document')" disabled>
+              <span class="btn-analyze-icon"></span>
+              <span class="btn-analyze-text">Read & Analyze</span>
+            </button>
+            <button class="btn-clear" onclick="removeFile('document')">Clear</button>
+          </div>
+        </div>
+
+        <!-- IMAGE MODE -->
+        <div class="input-card upload-card" id="modeImage" style="display:none;">
+          <div class="input-card-header">
+            <div class="input-card-title">️ Image File</div>
+            <div class="input-meta">JPG, PNG, BMP, TIFF · Max 50MB</div>
+          </div>
+          <div class="drop-zone" id="dropImage" onclick="document.getElementById('fileImage').click()">
+            <div class="drop-icon">️</div>
+            <div class="drop-title">Drop image here or click to browse</div>
+            <div class="drop-sub">Supports JPG, PNG, BMP, TIFF</div>
+            <div class="drop-sub">Text in image will be extracted using OCR then analyzed</div>
+            <input type="file" id="fileImage" accept=".jpg,.jpeg,.png,.bmp,.tiff" style="display:none" onchange="handleFileSelect(this,'image')"/>
+          </div>
+          <div class="file-selected" id="fileSelectedImage" style="display:none;">
+            <span class="file-icon">️</span>
+            <span class="file-name" id="fileNameImage"></span>
+            <button class="file-remove" onclick="removeFile('image')">✕</button>
+          </div>
+          <div class="input-card-footer">
+            <button class="btn-analyze" id="analyzeBtnImage" onclick="analyzeFile('image')" disabled>
+              <span class="btn-analyze-icon"></span>
+              <span class="btn-analyze-text">Scan & Analyze</span>
+            </button>
+            <button class="btn-clear" onclick="removeFile('image')">Clear</button>
+          </div>
+        </div>
+
+        <!-- Model Info Badge -->
         <div class="model-badge">
           <div class="mb-item"><span class="mb-label">Model</span><span class="mb-val">Passive Aggressive Classifier</span></div>
           <div class="mb-item"><span class="mb-label">Vectorizer</span><span class="mb-val">TF-IDF (50k features)</span></div>
@@ -59,7 +179,7 @@ The system will analyze:
         </div>
       </div>
 
-      <!-- RIGHT: Result -->
+      <!-- ══ RIGHT: RESULT PANEL ══ -->
       <div class="result-col">
         <div class="result-card" id="resultCard">
 
@@ -67,16 +187,16 @@ The system will analyze:
           <div class="state-idle" id="stateIdle">
             <div class="idle-icon">🧠</div>
             <div class="idle-title">Awaiting input</div>
-            <div class="idle-sub">Enter a news article and click Analyze News</div>
+            <div class="idle-sub">Choose an input type and submit content to analyze</div>
           </div>
 
           <!-- Processing -->
           <div class="state-processing" id="stateProcessing">
             <div class="proc-spinner"></div>
-            <div class="proc-title">Analyzing article...</div>
+            <div class="proc-title" id="procTitle">Analyzing...</div>
             <div class="proc-steps">
-              <div class="pstep" id="ps1">⚙️ Preprocessing text</div>
-              <div class="pstep" id="ps2"> TF-IDF vectorizing</div>
+              <div class="pstep" id="ps1">⚙️ Processing file</div>
+              <div class="pstep" id="ps2"> Extracting text</div>
               <div class="pstep" id="ps3">🤖 Running classifier</div>
               <div class="pstep" id="ps4"> Calculating confidence</div>
             </div>
@@ -84,6 +204,7 @@ The system will analyze:
 
           <!-- Result -->
           <div class="state-result" id="stateResult">
+
             <div class="verdict-banner" id="verdictBanner">
               <div class="verdict-icon" id="verdictIcon">✓</div>
               <div class="verdict-info">
@@ -91,6 +212,12 @@ The system will analyze:
                 <div class="verdict-word" id="verdictWord">REAL</div>
               </div>
               <div class="verdict-conf-big" id="verdictConfBig">—</div>
+            </div>
+
+            <!-- Source type badge -->
+            <div class="source-type-row">
+              <span class="source-label">Source:</span>
+              <span class="source-badge" id="sourceBadge">text</span>
             </div>
 
             <div class="result-meter-section">
@@ -104,6 +231,12 @@ The system will analyze:
               <div class="meter-labels"><span>0%</span><span>50%</span><span>100%</span></div>
             </div>
 
+            <!-- Extracted text preview (for file uploads) -->
+            <div class="extracted-preview" id="extractedPreview" style="display:none;">
+              <div class="result-section-title"> Extracted Text Preview</div>
+              <div class="extracted-text" id="extractedText"></div>
+            </div>
+
             <div class="result-keywords">
               <div class="result-section-title">⚑ Flagged Keywords</div>
               <div id="kwTags" class="kw-tags"></div>
@@ -112,8 +245,8 @@ The system will analyze:
             <div class="result-meta" id="resultMeta"></div>
 
             <div class="result-actions">
-              <button class="btn-again" onclick="clearAll()">← Analyze Another Article</button>
-              <a href="{{ url_for('news_page') }}" class="btn-news-link">View Live News Feed →</a>
+              <button class="btn-again" onclick="clearAll()">← Analyze Another</button>
+              <a href="{{ url_for('news_page') }}" class="btn-news-link">View Live News →</a>
             </div>
           </div>
 
