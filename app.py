@@ -75,7 +75,7 @@ def save_to_db(article, prediction, confidence, source_type="text"):
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute(
-        "INSERT INTO analysis_history (article, prediction, confidence, word_count, source_type, timestamp) VALUES (?,?,?,?,?)",
+        "INSERT INTO analysis_history (article, prediction, confidence, word_count, source_type, timestamp) VALUES (?,?,?,?,?,?)",
         (article[:500], prediction, confidence, len(article.split()), source_type, datetime.now().isoformat())
     )
     conn.commit()
